@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# History
+# 1.0.2: bundle and rake are configured by application preferences using (rake|bundle)-start.txt files
+# 1.0.1: parameters are comma separated values
+# 1.0.0: worker are spawn without fork
+
+export app="${1}"
+IFS=',' declare -a 'param=(${2})'
+export param
+#echo "DEBUG: $0 $@, params: ${param[@]}"
+
+cd $app
+export RACK_ENV=production
+echo "Starting server: ${USER} is starting ${app}"
+
+if [[ ! -e "tmp/pumactl-${param[0]}.sock" ]]
+# Server is not running, will be run now
+then
+    echo "Server was not running, now starting."
+    # Restarting now, it's useless to keep restarting bits
+    [[ -e "tmp/restart.txt" ]] && rm "tmp/restart.txt"
+    [[ -e "tmp/rebuild.txt" ]] && rm "tmp/rebuild.txt"
+    # Check whether the app is package or not
+    if [[ -e "bundle-start.txt" ]]
+    then
+        # Installing the required gems
+        printf "%s\n" "${param[@]}" | xargs $(which env) bash run-server.sh bundle
+    fi
+    # Check which are the expected rake tasks to be run at boot
+    if [[ -e "rake-start.txt" ]]
+    then
+        #Running required tasks
+        printf "%s\n" "${param[@]}" | xargs $(which env) bash run-server.sh rake
+    fi
+    #Running the instance server
+    printf "%s\n" "${param[@]}" | xargs $(which env) bash run-server.sh
+else
+    echo "Server was found running, now probing status."
+    bash instance-manager.sh production status
+    # TODO: check if it's actually running
+    # current workaround: the instance is destroyed (will be respawn later)
+    bash instance-manager.sh production stop
+    rm "tmp/pumactl-${param[0]}.sock" "tmp/${param[0]}.pid"
+fi
+echo "Now running monitors for restart or rebuild."
+
+#Looping to watch for phased restart
+while [[ -e "tmp/${param[0]}.pid" ]]
+do
+    cd "${app}"
+    # Restart?
+    if [[ -e "tmp/restart.txt" ]]
+    then
+        echo "Removing the restart flag file"
+        rm "tmp/restart.txt"
+        # Sending phased-restart command
+        bash instance-manager.sh production phased-restart
+        echo "${USER}-${app} server have RESTARTED"
+    fi
+    # Rebuild?
+    if [[ -e "tmp/rebuild.txt" ]]
+    then
+        echo "Removing the rebuild flag file"
+        rm "tmp/rebuild.txt"
+        # Sending halt command
+        echo "This process will die but will be spawn again by a new pId"
+        bash instance-manager.sh production stop
+        # Replacing current pID with a new one running the same process with same parameters
+        exec "${0}" $@
+    fi
+    # Do a check every minute (TODO: might be wise to change it to touch monitoring with incron in a future release)
+    sleep 60
+done
+echo "Monitor has gone..."
+

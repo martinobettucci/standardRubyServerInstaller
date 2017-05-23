@@ -1,0 +1,47 @@
+# /etc/init/puma.conf - Puma config
+#
+# History
+#   1.0.1: Manages application dependecies
+#   1.0.0: Instance are user/application identified
+#
+# This example config should work with Ubuntu 12.04+.  It
+# allows you to manage multiple Puma instances with
+# Upstart, Ubuntu's native service management tool.
+#
+# See workers.conf for how to manage all Puma instances at once.
+#
+# Save this config as /etc/init/puma.conf then manage puma with:
+#   sudo start puma app="PATH_TO_APP" param="param1#param2#param3" user="worker_user" deps="mysql"
+#   sudo stop puma app="PATH_TO_APP" param="param1#param2#param3" user="worker_user" deps="pgsql"
+#   sudo status puma app="PATH_TO_APP" param="param1#param2#param3" user="worker_user"
+#
+
+description "Puma Background Worker"
+
+# no "start on", we don't want to automatically start
+stop on (stopping puma-manager or runlevel [06])
+
+setuid root
+setgid root
+
+env param
+env app
+env user
+env deps
+
+console log
+instance ${user}-${app}
+respawn
+
+script
+    echo "A new worker running ${app} as ${user} was spawn" #"; DEBUG: with parameters ${param}"
+    if [ ! -z "${deps}" ]
+    then
+        echo "Dependecy ${deps} have been started"
+        service ${deps} start
+    fi
+    # Fix permission after deploy
+    sudo chown -R ${user}:application_users ${app}
+    exec sudo -iu ${user} /etc/puma.worker "${app}" "${param}"
+end script
+

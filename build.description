@@ -1,0 +1,35 @@
+function embed() {
+  cat ./resources/$1.embedded | sed 's~^~#/~'
+}
+
+cat ./resources/requirements.build
+cat ./resources/dependecies.build
+
+echo 'export RUBYMANAGER_DEST="/etc/profile.d/ruby-manager.sh"'
+echo 'export RUBYMANAGER_START=$((LINENO +1))'
+embed ruby_manager
+echo 'export RUBYMANAGER_END=$((LINENO -1))'
+
+echo 'export NVMINSTALL_DEST="/etc/profile.d/nvm.sh"'
+echo 'export NVMINSTALL_START=$((LINENO +1))'
+embed nvm_profile_d
+echo 'export NVMINSTALL_END=$((LINENO -1))'
+
+echo 'export PUMAWORKER_DEST="/etc/puma.worker"'
+echo 'export PUMAWORKER_START=$((LINENO +1))'
+embed puma_worker
+echo 'export PUMAWORKER_END=$((LINENO -1))'
+
+echo 'export PUMAMANAGER_DEST="/etc/init/puma-manager.conf"'
+echo 'export PUMAMANAGER_START=$((LINENO +1))'
+embed puma_manager
+echo 'export PUMAMANAGER_END=$((LINENO -1))'
+
+echo 'export PUMARUNNER_DEST="/etc/init/puma.conf"'
+echo 'export PUMARUNNER_START=$((LINENO +1))'
+embed puma_runner
+echo 'export PUMARUNNER_END=$((LINENO -1))'
+
+cat ./resources/install_embedded.build
+
+cat ./resources/final_setup.build

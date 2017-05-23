@@ -1,0 +1,39 @@
+# Essentials instal
+sudo apt-get -y install nano curl deborphan build-essential libssl-dev npm memcached apache2 git apt-transport-https software-properties-common linux-image-extra-$(uname -r) linux-image-extra-virtual
+
+# Fixing locale generation
+sudo locale-gen "fr_FR.UTF-8"
+sudo locale-gen "en_US.UTF-8"
+sudo locale-gen "en_GB.UTF-8"
+sudo dpkg-reconfigure locales
+
+# Installing RVM
+sudo gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+echo progress-bar >> ~/.curlrc
+curl -sSL https://get.rvm.io | sudo bash
+source /etc/profile.d/rvm.sh
+
+# Adding installer user as a RVM manager (supposing the installer is a maintener)
+sudo usermod -a -G rvm $(whoami)
+
+# Installing ruby essentials
+rvm install ruby-2.4.0
+gem install bundler
+
+# Essentials system configuration
+sudo a2enmod rewrite ssl proxy proxy_http headers 
+sudo printf "root\t-\tmemlock\t1048576\n" >> /etc/security/limits.d/root.conf
+sudo groupadd application_users
+
+# Adding installer user as a RUBY manager (supposing the installer is a maintener)
+sudo usermod -a -G application_users $(whoami)
+
+# Installing NODE VERSION MANAGER in a shared environment
+export NVM_DIR=/opt/nvm
+export NVM_INSTALL=/tmp/nvm
+sudo mkdir -p ${NVM_DIR} ${NVM_INSTALL}
+[[ -e "$NVM_INSTALL" ]] || sudo git clone https://github.com/creationix/nvm.git "$NVM_INSTALL"
+cd "$NVM_INSTALL" && git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" origin`
+cat "${NVM_INSTALL}/install.sh" | NVM_DIR="${NVM_DIR}" PROFILE="/etc/profile.d/nvm.sh" sudo bash
+cd -
+

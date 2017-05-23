@@ -1,0 +1,51 @@
+# Setup global ruby users home
+export RUBY_USERS_HOME=/opt/ruby_users/
+# Allows to share files with the group
+umask 002
+# Promote current user to ruby maintener user
+function addRubyMaintener() {
+  sudo usermod -a -G application_users $(whoami)
+  sudo usermod -a -G rvm $(whoami)
+}
+# Generate a ruby-puma stack compatible user
+function addRubyUser() {
+  rubyuser="$1"
+  rubyenv="$2"
+  if [[ $# -eq 1 ]]
+  then
+    ruby_final_name="${rubyuser}"
+  elif [[ $# -eq 2 ]]
+  then
+    ruby_final_name="${rubyuser}_${rubyenv}"
+  else
+    echo "Error"
+  fi
+  
+  if [[ -n "${ruby_final_name}" ]]
+  then
+    # Create the user
+    sudo adduser --disabled-password --gecos "" --home ${RUBY_USERS_HOME}${ruby_final_name} --shell /bin/bash --ingroup application_users ${ruby_final_name}
+    # Add the user to the rvm group
+    sudo usermod -a -G rvm ${ruby_final_name}
+    # Allow the user to use larga caches
+    sudo printf "${ruby_final_name}\t-\tmemlock\t1048576\n" >> /etc/security/limits.d/${ruby_final_name}.conf
+    # Create the user instance of caches
+    sudo echo "
+# Run memcached as a daemon.
+-d
+# Log memcached's output to /var/log/memcached
+logfile /var/log/memcached_${ruby_final_name}.log
+# Start with a cap of 64 megs of memory.
+-m 64
+# The start-memcached will default to running as the web application user
+-u ${ruby_final_name}
+# Will use this socket in the web application user home
+-s ${RUBY_USERS_HOME}${ruby_final_name}/memcache.socket
+# The socket is \"srw------ (u+rw,go-rw)\" only read/write for the current user
+-a 0700
+# Prevent swapping to avoid memory dump attacks
+-k
+"  > /etc/memcached_${ruby_final_name}.conf
+    service memcached restart
+  fi
+}

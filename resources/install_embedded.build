@@ -1,0 +1,15 @@
+echo Installing RUBY HELPERS
+sudo sed -n ${RUBYMANAGER_START},${RUBYMANAGER_END}p $0 | sed -e 's~#/~~' > ${RUBYMANAGER_DEST}
+
+echo Installing NVM
+sudo sed -n ${NVMINSTALL_START},${NVMINSTALL_END}p $0 | sed -e 's~#/~~' > ${NVMINSTALL_DEST}
+
+echo Installing puma manager
+sudo sed -n ${PUMAMANAGER_START},${PUMAMANAGER_END}p $0 | sed -e 's~#/~~' > ${PUMAMANAGER_DEST}
+
+echo Installing puma runner
+sudo sed -n ${PUMARUNNER_START},${PUMARUNNER_END}p $0 | sed -e 's~#/~~' > ${PUMARUNNER_DEST}
+
+echo Installing puma worker
+sudo sed -n ${PUMAWORKER_START},${PUMAWORKER_END}p $0 | sed -e 's~#/~~' > ${PUMAWORKER_DEST}
+sudo chmod +x ${PUMAWORKER_DEST}
