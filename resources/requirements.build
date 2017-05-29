@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ "${whoami}" != "root" ]] || [[ -z "$(which sudo)" ]]
+if [[ -z "$(which sudo)" ]]
 then
   echo "Install must be done with root user or sudo shell"
   exit 127

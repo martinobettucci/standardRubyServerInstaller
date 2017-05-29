@@ -9,7 +9,7 @@ sudo dpkg-reconfigure locales
 
 # Installing RVM
 sudo gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-echo progress-bar >> ~/.curlrc
+echo progress-bar > ~/.curlrc
 curl -sSL https://get.rvm.io | sudo bash
 source /etc/profile.d/rvm.sh
 
@@ -22,7 +22,7 @@ gem install bundler
 
 # Essentials system configuration
 sudo a2enmod rewrite ssl proxy proxy_http headers 
-sudo printf "root\t-\tmemlock\t1048576\n" >> /etc/security/limits.d/root.conf
+sudo printf "root\t-\tmemlock\t1048576\n" > /etc/security/limits.d/root.conf
 sudo groupadd application_users
 
 # Adding installer user as a RUBY manager (supposing the installer is a maintener)
