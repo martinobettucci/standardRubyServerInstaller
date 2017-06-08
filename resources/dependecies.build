@@ -23,7 +23,8 @@ gem install bundler
 # Essentials system configuration
 sudo a2enmod rewrite ssl proxy proxy_http headers 
 sudo printf "root\t-\tmemlock\t1048576\n" > /etc/security/limits.d/root.conf
-sudo groupadd application_users
+sudo groupadd application_users 
+sudo groupadd lcsrubylive
 
 # Adding installer user as a RUBY manager (supposing the installer is a maintener)
 sudo usermod -a -G application_users $(whoami)

@@ -20,10 +20,15 @@ addRubyUser ruby-manager
 # Promote installer user to Ruby Maintener
 addRubyMaintener
 # Set the ruby home roots to ruby-manager user
+sudo usermod -m -d /opt/ruby-manager ruby-manager
+sudo usermod -a -G lcsrubylive ruby-manager
 sudo chown -R ruby-manager:application_users ${NVM_DIR} ${RUBY_USERS_HOME}
 # Allows mainteners to publish applications to the ruby-users
 sudo chmod -R g+srw ${NVM_DIR} ${RUBY_USERS_HOME}
 #su - ruby-manager
+
+# Fixing issue with "Authentication refused: bad ownership or modes for directory $HOME"
+chmod g-w /opt/ruby_users/ruby-manager
 
 echo "Some profiles were installed, please exit your session to load environment"
 

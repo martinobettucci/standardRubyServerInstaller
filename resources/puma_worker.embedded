@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # History
+# 1.0.3: special environments are taken in account
 # 1.0.2: bundle and rake are configured by application preferences using (rake|bundle)-start.txt files
 # 1.0.1: parameters are comma separated values
 # 1.0.0: worker are spawn without fork
@@ -8,10 +9,10 @@
 export app="${1}"
 IFS=',' declare -a 'param=(${2})'
 export param
-#echo "DEBUG: $0 $@, params: ${param[@]}"
+echo "DEBUG: $0 $@, params: ${param[@]}"
 
 cd $app
-export RACK_ENV=production
+export RACK_ENV=${param[1]}
 echo "Starting server: ${USER} is starting ${app}"
 
 if [[ ! -e "tmp/pumactl-${param[0]}.sock" ]]
@@ -37,10 +38,10 @@ then
     printf "%s\n" "${param[@]}" | xargs $(which env) bash run-server.sh
 else
     echo "Server was found running, now probing status."
-    bash instance-manager.sh production status
+    bash instance-manager.sh ${RACK_ENV} status
     # TODO: check if it's actually running
     # current workaround: the instance is destroyed (will be respawn later)
-    bash instance-manager.sh production stop
+    bash instance-manager.sh ${RACK_ENV} stop
     rm "tmp/pumactl-${param[0]}.sock" "tmp/${param[0]}.pid"
 fi
 echo "Now running monitors for restart or rebuild."
@@ -55,7 +56,7 @@ do
         echo "Removing the restart flag file"
         rm "tmp/restart.txt"
         # Sending phased-restart command
-        bash instance-manager.sh production phased-restart
+        bash instance-manager.sh ${RACK_ENV} phased-restart
         echo "${USER}-${app} server have RESTARTED"
     fi
     # Rebuild?
@@ -65,7 +66,7 @@ do
         rm "tmp/rebuild.txt"
         # Sending halt command
         echo "This process will die but will be spawn again by a new pId"
-        bash instance-manager.sh production stop
+        bash instance-manager.sh ${RACK_ENV} stop
         # Replacing current pID with a new one running the same process with same parameters
         exec "${0}" $@
     fi
