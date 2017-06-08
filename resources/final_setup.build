@@ -28,7 +28,7 @@ sudo chmod -R g+srw ${NVM_DIR} ${RUBY_USERS_HOME}
 #su - ruby-manager
 
 # Fixing issue with "Authentication refused: bad ownership or modes for directory $HOME"
-chmod g-w /opt/ruby_users/ruby-manager
+chmod g-w ~ruby-manager
 
 echo "Some profiles were installed, please exit your session to load environment"
 
