@@ -3,22 +3,25 @@ This is the repository to store my scripted ruby runner server installer.
 
 This stack of ruby servers runner was made to ease the install of ruby private cloud servers.  
 
+# How to install
+Clone this repository, run `make` under a terminal and inspect the generated file (`./install_me.sh`): after checking the generated script, if you agree with its content and it fits your policies of server configurations, run it in a clean install debian-based server you want to use to run your rails applications.  
+
 # What is going to be installed
 The script is going to install RVM (https://rvm.io/) and NVM (https://nvm.sh/), creating an `application_users` unix group and a special `ruby-manager` unix user used for maintenance operations or deploy.  
 Installed and configured are the Apache2 web server (https://httpd.apache.org/) and the Memcache server (https://memcached.org/) with some predefined configurations and tuning.  
 Others softwares are installed by default using `apt`, please check the generated code before running it in your instances.  
 
 # How it works
-Some helper scripts are installed in the bash shell environement, allowing to automate the administrations steps.  
+Some helper scripts are installed in the bash shell environment, allowing to automate the administrations steps.  
 The helpers will create default settings for users to be used as deamons to run Rails applications.  
-Every users will have a memcached private instance, an Apache2 entry for the static pages and the assets plus the ability to create gemsets and install rubies interpreters and gems.
+Every users will have a memcached private instance, an Apache2 entry for the static pages and the assets plus the ability to create gemsets and install rubies interpreters and gems.  
 
 # How to use it
 The script install some bash functions in the `/etc/profile.d/` directory as to be accessible to any server user:  
 - addRubyUser $1 $2  
--- This is a standard bash function, will take a name as first parameter (ex: user-rail-1) and an isolation level as a second parameter (ex: demo), the resulting rails daemon of the given example user will be `user-rails-1_demo` and will have a dedicated home into a `application_users` grouped home under `/opt` to isolate them from normal users homes (ex: `/opt/ruby-users/user-rails-1_demo`)  
+- - This is a standard bash function, will take a name as first parameter (ex: user-rail-1) and an isolation level as a second parameter (ex: demo), the resulting rails daemon of the given example user will be `user-rails-1_demo` and will have a dedicated home into a `application_users` grouped home under `/opt` to isolate them from normal users homes (ex: `/opt/ruby-users/user-rails-1_demo`)  
 - addRubyMaintener  
--- Given the running user is a `sudoer`, it promotes himself to the same rola as the `rail-manager` users allowing him to operate maintenace and deploy of served rails instances.
+- - Given the running user is a `sudoer`, it promotes himself to the same rola as the `rail-manager` users allowing him to operate maintenace and deploy of served rails instances.
 
 # Release note
 Be sure to not have a ruby version manager already installed nor any ruby interpreter at all.  
