@@ -12,4 +12,7 @@ sudo sed -n ${PUMARUNNER_START},${PUMARUNNER_END}p $0 | sed -e 's~#/~~' > ${PUMA
 
 echo Installing puma worker
 sudo sed -n ${PUMAWORKER_START},${PUMAWORKER_END}p $0 | sed -e 's~#/~~' > ${PUMAWORKER_DEST}
-sudo chmod +x ${PUMAWORKER_DEST}
+
+echo Setting installed files permission model
+sudo chmod ugo+rx ${RUBYMANAGER_DEST} ${NVMINSTALL_DEST} ${PUMAWORKER_DEST}
+sudo chmod 644 ${PUMAMANAGER_DEST} ${PUMARUNNER_DEST}
