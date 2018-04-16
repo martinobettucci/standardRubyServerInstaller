@@ -12,7 +12,7 @@ export param
 #echo "DEBUG: $0 $@, params: ${param[@]}"
 
 cd $app
-#param= sms-group-gui,production,d138c6f34e6096515a4ed1f366ab5f74918e21be4be5d503228f4a568597b0d39ee70ea6a3c5c6de8f80a04afdf1b1b56c4d51790f0bd2853e82163f830b2c7e,amqp
+#param= app-id,environment,param1,param2
 export RACK_ENV=${param[1]}
 echo "Starting server: ${USER} is starting ${app}"
 
